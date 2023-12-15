@@ -1,15 +1,15 @@
 package main
 
 import (
-	"github.com/midtrans/midtrans-go/snap"
 	"midtrans-go/app"
 	"midtrans-go/config"
-	authcontroller "midtrans-go/controllers/auth_controller"
-	midtranscontroller "midtrans-go/controllers/midtrans_controller"
+	"midtrans-go/controllers"
 	"midtrans-go/middleware"
-	userrepository "midtrans-go/repositories/user_repository"
-	authservice "midtrans-go/service/auth_service"
+	"midtrans-go/repositories"
+	"midtrans-go/service"
 	"net/http"
+
+	"github.com/midtrans/midtrans-go/coreapi"
 
 	"github.com/go-playground/validator/v10"
 	_ "github.com/go-sql-driver/mysql"
@@ -19,12 +19,12 @@ import (
 func main() {
 	db := app.NewDatabase()
 	validate := validator.New()
-	userRepository := userrepository.NewUserRepository()
-	authService := authservice.NewAuthService(userRepository, db, validate)
-	authController := authcontroller.NewAuthController(authService)
+	userRepository := repositories.NewUserRepository()
+	authService := service.NewAuthService(userRepository, db, validate)
+	authController := controllers.NewAuthController(authService)
 
-	var snapClient snap.Client
-	midtransController := midtranscontroller.NewMidtransController(snapClient)
+	var coreapiClient coreapi.Client
+	midtransController := controllers.NewMidtransController(coreapiClient)
 
 	router := app.NewRouter(authController, midtransController)
 
@@ -32,8 +32,6 @@ func main() {
 		Addr:    "localhost:" + config.NewConfig().App.Port,
 		Handler: middleware.NewMiddleware(router),
 	}
-
-	// app.NewMidtransClient()
 
 	logrus.Info("Running at port " + config.NewConfig().App.Port)
 	server.ListenAndServe()

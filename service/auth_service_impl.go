@@ -1,10 +1,11 @@
-package authservice
+package service
 
 import (
 	"context"
 	"database/sql"
 	"midtrans-go/helper"
-	userrepository "midtrans-go/repositories/user_repository"
+	"midtrans-go/repositories"
+
 	"time"
 
 	"midtrans-go/model/domain"
@@ -15,12 +16,12 @@ import (
 )
 
 type AuthServiceImpl struct {
-	UserRepository userrepository.UserRepository
+	UserRepository repositories.UserRepository
 	DB             *sql.DB
 	Validate       *validator.Validate
 }
 
-func NewAuthService(userRepository userrepository.UserRepository, DB *sql.DB, validator *validator.Validate) *AuthServiceImpl {
+func NewAuthService(userRepository repositories.UserRepository, DB *sql.DB, validator *validator.Validate) *AuthServiceImpl {
 	return &AuthServiceImpl{
 		UserRepository: userRepository,
 		DB:             DB,

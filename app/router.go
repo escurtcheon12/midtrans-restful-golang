@@ -2,8 +2,7 @@ package app
 
 import (
 	"fmt"
-	authcontroller "midtrans-go/controllers/auth_controller"
-	midtranscontroller "midtrans-go/controllers/midtrans_controller"
+	"midtrans-go/controllers"
 	"midtrans-go/exception"
 	"net/http"
 
@@ -11,7 +10,7 @@ import (
 	"github.com/julienschmidt/httprouter"
 )
 
-func NewRouter(authController authcontroller.AuthController, midtransController midtranscontroller.MidtransController) *httprouter.Router {
+func NewRouter(authController controllers.AuthController, midtransController controllers.MidtransController) *httprouter.Router {
 	router := httprouter.New()
 
 	router.POST("/api/midtrans/create-transactions", validateJWT(midtransController.ChargeTransactions))
@@ -34,8 +33,6 @@ func validateJWT(next httprouter.Handle) httprouter.Handle {
 				}
 				return []byte("secret-token"), nil
 			})
-
-			fmt.Println(token)
 
 			if err != nil || !token.Valid {
 				w.WriteHeader(http.StatusUnauthorized)

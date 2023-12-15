@@ -1,10 +1,10 @@
-package authcontroller
+package controllers
 
 import (
 	"midtrans-go/helper"
 	"midtrans-go/model/web"
 	authweb "midtrans-go/model/web/auth_web"
-	service "midtrans-go/service/auth_service"
+	"midtrans-go/service"
 	"net/http"
 
 	"github.com/julienschmidt/httprouter"
