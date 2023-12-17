@@ -7,5 +7,9 @@ import (
 )
 
 type MidtransController interface {
-	ChargeTransactions(w http.ResponseWriter, r *http.Request, p httprouter.Params)
+	ChargeTransaction(w http.ResponseWriter, r *http.Request, p httprouter.Params)
+	CancelTransaction(w http.ResponseWriter, r *http.Request, p httprouter.Params)
+	RefundTransaction(w http.ResponseWriter, r *http.Request, p httprouter.Params)
+	GetTransactionStatus(w http.ResponseWriter, r *http.Request, p httprouter.Params)
+	VerifyPayment(w http.ResponseWriter, r *http.Request, p httprouter.Params)
 }

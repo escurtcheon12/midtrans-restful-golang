@@ -2,11 +2,11 @@ package helper
 
 import (
 	"midtrans-go/model/domain"
-	authweb "midtrans-go/model/web/auth_web"
+	"midtrans-go/model/web"
 )
 
-func ToAuthResponse(user domain.User) authweb.AuthResponse {
-	return authweb.AuthResponse{
+func ToAuthResponse(user domain.User) web.AuthResponse {
+	return web.AuthResponse{
 		Id:         user.Id,
 		Username:   user.Username,
 		Email:      user.Email,
@@ -17,8 +17,8 @@ func ToAuthResponse(user domain.User) authweb.AuthResponse {
 	}
 }
 
-func ToAuthResponses(user []domain.User) []authweb.AuthResponse {
-	var authResponses []authweb.AuthResponse
+func ToAuthResponses(user []domain.User) []web.AuthResponse {
+	var authResponses []web.AuthResponse
 	for _, user := range user {
 		authResponses = append(authResponses, ToAuthResponse(user))
 	}

@@ -6,7 +6,7 @@ import (
 	"log"
 	"midtrans-go/helper"
 	"midtrans-go/model/domain"
-	"time"
+	"midtrans-go/utils"
 )
 
 type UserRepositoryImpl struct {
@@ -35,26 +35,11 @@ func (repository *UserRepositoryImpl) GetByUsername(ctx context.Context, tx *sql
 			log.Printf("Error scanning row: %v", err)
 		}
 
-		userRow.Created_at = parseTimestamp(createdAtStr)
-		userRow.Updated_at = parseTimestamp(updatedAtStr)
+		userRow.Created_at = utils.ParseTimestamp(createdAtStr)
+		userRow.Updated_at = utils.ParseTimestamp(updatedAtStr)
 
 		dataUser = append(dataUser, userRow)
 	}
 
 	return dataUser
-}
-
-func parseTimestamp(timestampStr string) time.Time {
-	if timestampStr == "" {
-		log.Println("Warning: Timestamp is an empty string")
-		return time.Time{}
-	}
-
-	timestamp, err := time.Parse("2006-01-02 15:04:05", timestampStr)
-	if err != nil {
-		log.Printf("Error parsing timestamp: %v", err)
-		return time.Time{}
-	}
-
-	return timestamp.UTC()
 }

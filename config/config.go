@@ -8,7 +8,8 @@ import (
 )
 
 type App struct {
-	Port string
+	Port        string
+	Environment string
 }
 
 type Database struct {
@@ -36,9 +37,26 @@ func NewConfig() *Config {
 	err := godotenv.Load(".env")
 	helper.PanicIfError("Cannot load .env", err)
 
+	var midtransConfig Midtrans
+
+	if os.Getenv("ENVIRONMENT") == "prod" {
+		midtransConfig = Midtrans{
+			MidtransId: os.Getenv("MIDTRANS_ID_PROD"),
+			ClientKey:  os.Getenv("CLIENT_KEY_PROD"),
+			ServerKey:  os.Getenv("SERVER_KEY_PROD"),
+		}
+	} else {
+		midtransConfig = Midtrans{
+			MidtransId: os.Getenv("MIDTRANS_ID_DEV"),
+			ClientKey:  os.Getenv("CLIENT_KEY_DEV"),
+			ServerKey:  os.Getenv("SERVER_KEY_DEV"),
+		}
+	}
+
 	return &Config{
 		App{
-			Port: os.Getenv("PORT"),
+			Port:        os.Getenv("PORT"),
+			Environment: os.Getenv("ENVIRONMENT"),
 		},
 		Database{
 			Driver:   os.Getenv("DB_DRIVER"),
@@ -48,10 +66,6 @@ func NewConfig() *Config {
 			Port:     os.Getenv("DB_PORT"),
 			Name:     os.Getenv("DB_NAME"),
 		},
-		Midtrans{
-			MidtransId: os.Getenv("MIDTRANS_ID"),
-			ClientKey:  os.Getenv("CLIENT_KEY"),
-			ServerKey:  os.Getenv("SERVER_KEY"),
-		},
+		midtransConfig,
 	}
 }

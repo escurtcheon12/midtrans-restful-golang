@@ -3,7 +3,6 @@ package controllers
 import (
 	"midtrans-go/helper"
 	"midtrans-go/model/web"
-	authweb "midtrans-go/model/web/auth_web"
 	"midtrans-go/service"
 	"net/http"
 
@@ -26,7 +25,7 @@ func (service *AuthControllerImpl) Login(w http.ResponseWriter, r *http.Request,
 	username := r.Form.Get("username")
 	password := r.Form.Get("password")
 
-	authRequestDto := authweb.AuthRequestDto{
+	authRequestDto := web.AuthRequestDto{
 		Username: username,
 		Password: password,
 	}
@@ -43,7 +42,7 @@ func (service *AuthControllerImpl) Login(w http.ResponseWriter, r *http.Request,
 }
 
 func (service *AuthControllerImpl) CreateJWT(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
-	authService := service.AuthService.CreateJWT(r.Context(), authweb.AuthRequestDto{})
+	authService := service.AuthService.CreateJWT(r.Context(), web.AuthRequestDto{})
 
 	webResponse := web.WebResponse{
 		Code:   200,

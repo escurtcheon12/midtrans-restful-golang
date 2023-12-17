@@ -13,7 +13,11 @@ import (
 func NewRouter(authController controllers.AuthController, midtransController controllers.MidtransController) *httprouter.Router {
 	router := httprouter.New()
 
-	router.POST("/api/midtrans/create-transactions", validateJWT(midtransController.ChargeTransactions))
+	router.POST("/api/midtrans/create-transaction", (midtransController.ChargeTransaction))
+	router.POST("/api/midtrans/cancel-transaction", (midtransController.CancelTransaction))
+	router.POST("/api/midtrans/refund-transaction", (midtransController.RefundTransaction))
+	router.POST("/api/midtrans/capture-transaction", (midtransController.VerifyPayment))
+	router.GET("/api/midtrans/get-transaction-status", (midtransController.GetTransactionStatus))
 
 	router.GET("/api/jwt/generate", authController.CreateJWT)
 	router.POST("/api/login", authController.Login)

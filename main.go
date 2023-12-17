@@ -23,8 +23,8 @@ func main() {
 	authService := service.NewAuthService(userRepository, db, validate)
 	authController := controllers.NewAuthController(authService)
 
-	var coreapiClient coreapi.Client
-	midtransController := controllers.NewMidtransController(coreapiClient)
+	midtransService := service.NewMidtransService()
+	midtransController := controllers.NewMidtransController(coreapi.Client{}, midtransService)
 
 	router := app.NewRouter(authController, midtransController)
 

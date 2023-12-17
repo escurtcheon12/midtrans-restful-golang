@@ -2,10 +2,10 @@ package service
 
 import (
 	"context"
-	authweb "midtrans-go/model/web/auth_web"
+	"midtrans-go/model/web"
 )
 
 type AuthService interface {
-	Authenticate(ctx context.Context, user authweb.AuthRequestDto) []authweb.AuthResponse
-	CreateJWT(ctx context.Context, user authweb.AuthRequestDto) string
+	Authenticate(ctx context.Context, user web.AuthRequestDto) []web.AuthResponse
+	CreateJWT(ctx context.Context, user web.AuthRequestDto) string
 }

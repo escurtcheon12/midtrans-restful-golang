@@ -1,4 +1,4 @@
-package authweb
+package web
 
 import "time"
 

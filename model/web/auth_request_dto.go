@@ -1,4 +1,4 @@
-package authweb
+package web
 
 type AuthRequestDto struct {
 	Username string `validate:"required" json:"username"`

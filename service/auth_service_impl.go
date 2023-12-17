@@ -9,7 +9,7 @@ import (
 	"time"
 
 	"midtrans-go/model/domain"
-	authweb "midtrans-go/model/web/auth_web"
+	"midtrans-go/model/web"
 
 	"github.com/go-playground/validator/v10"
 	"github.com/golang-jwt/jwt"
@@ -29,7 +29,7 @@ func NewAuthService(userRepository repositories.UserRepository, DB *sql.DB, vali
 	}
 }
 
-func (service *AuthServiceImpl) Authenticate(ctx context.Context, request authweb.AuthRequestDto) []authweb.AuthResponse {
+func (service *AuthServiceImpl) Authenticate(ctx context.Context, request web.AuthRequestDto) []web.AuthResponse {
 	err := service.Validate.Struct(request)
 	helper.PanicIfError("Error filder field validation",
 		err,
@@ -47,12 +47,12 @@ func (service *AuthServiceImpl) Authenticate(ctx context.Context, request authwe
 
 	userRepository := service.UserRepository.GetByUsername(ctx, tx, user)
 
-	var authResponses []authweb.AuthResponse
+	var authResponses []web.AuthResponse
 
 	for _, u := range userRepository {
 		token := service.CreateJWT(ctx, request)
 
-		authResponses = append(authResponses, authweb.AuthResponse{
+		authResponses = append(authResponses, web.AuthResponse{
 			Id:       u.Id,
 			Username: u.Username,
 			Email:    u.Email,
@@ -65,7 +65,7 @@ func (service *AuthServiceImpl) Authenticate(ctx context.Context, request authwe
 	return authResponses
 }
 
-func (service *AuthServiceImpl) CreateJWT(ctx context.Context, request authweb.AuthRequestDto) string {
+func (service *AuthServiceImpl) CreateJWT(ctx context.Context, request web.AuthRequestDto) string {
 	token, err := generateToken()
 
 	if err != nil {

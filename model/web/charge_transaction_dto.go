@@ -1,6 +1,6 @@
 package web
 
-type ChargeTransactionsDto struct {
+type ChargeTransactionDto struct {
 	PaymentType        string             `json:"payment_type"`
 	TransactionDetails TransactionDetails `json:"transaction_details"`
 	CustomerDetails    CustomerDetails    `json:"customer_details"`
