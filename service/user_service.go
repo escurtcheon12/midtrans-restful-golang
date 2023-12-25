@@ -1,22 +1,12 @@
 package service
 
 import (
-	"database/sql"
-	"midtrans-go/repositories"
-
-	"github.com/go-playground/validator/v10"
+	"context"
+	"midtrans-go/model/web"
 )
 
-type UserServiceImpl struct {
-	UserRepository repositories.UserRepository
-	DB             *sql.DB
-	Validate       *validator.Validate
-}
-
-func NewUserSevice(userRepository repositories.UserRepository, DB *sql.DB, validate *validator.Validate) *UserServiceImpl {
-	return &UserServiceImpl{
-		UserRepository: userRepository,
-		DB:             DB,
-		Validate:       validate,
-	}
+type UserService interface {
+	Create(ctx context.Context, request web.UserRequestDto) web.UserResponse
+	GetById(ctx context.Context, userId int) web.UserResponse
+	Get(ctx context.Context) []web.UserResponse
 }

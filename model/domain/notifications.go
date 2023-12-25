@@ -2,7 +2,7 @@ package domain
 
 import "time"
 
-type Orders struct {
+type Notifications struct {
 	Id               int
 	Status           string
 	MidtransResponse string

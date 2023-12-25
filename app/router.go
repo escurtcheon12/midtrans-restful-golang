@@ -10,7 +10,7 @@ import (
 	"github.com/julienschmidt/httprouter"
 )
 
-func NewRouter(authController controllers.AuthController, midtransController controllers.MidtransController) *httprouter.Router {
+func NewRouter(authController controllers.AuthController, midtransController controllers.MidtransController, ordersController controllers.OrdersController, notificationsController controllers.NotificationsController, userController controllers.UserController) *httprouter.Router {
 	router := httprouter.New()
 
 	router.POST("/api/midtrans/create-transaction", (midtransController.ChargeTransaction))
@@ -20,6 +20,19 @@ func NewRouter(authController controllers.AuthController, midtransController con
 	router.GET("/api/midtrans/get-transaction-status", (midtransController.GetTransactionStatus))
 
 	router.GET("/api/jwt/generate", authController.CreateJWT)
+
+	router.GET("/api/orders", ordersController.Get)
+	router.GET("/api/orders/:orderId", ordersController.GetById)
+	router.POST("/api/orders/create", ordersController.Create)
+
+	router.GET("/api/notifications", notificationsController.Get)
+	router.GET("/api/notifications/:notificationId", notificationsController.GetById)
+	router.POST("/api/notifications/create", notificationsController.Create)
+
+	router.GET("/api/user", userController.Get)
+	router.GET("/api/user/:userId", userController.GetById)
+	router.POST("/api/user/create", userController.Create)
+
 	router.POST("/api/login", authController.Login)
 
 	router.PanicHandler = exception.ErrorHandler

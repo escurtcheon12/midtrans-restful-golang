@@ -26,7 +26,18 @@ func main() {
 	midtransService := service.NewMidtransService()
 	midtransController := controllers.NewMidtransController(coreapi.Client{}, midtransService)
 
-	router := app.NewRouter(authController, midtransController)
+	ordersRepository := repositories.NewOrdersRepository()
+	ordersService := service.NewOrdersService(ordersRepository, db, validate)
+	ordersController := controllers.NewOrdersController(ordersService)
+
+	notificationsRepository := repositories.NewNotificationsRepository()
+	notificationsService := service.NewNotificationsService(notificationsRepository, db, validate)
+	notificationsController := controllers.NewNotificationsController(notificationsService)
+
+	userService := service.NewUserService(userRepository, db, validate)
+	userController := controllers.NewUserController(userService)
+
+	router := app.NewRouter(authController, midtransController, ordersController, notificationsController, userController)
 
 	server := http.Server{
 		Addr:    "localhost:" + config.NewConfig().App.Port,
