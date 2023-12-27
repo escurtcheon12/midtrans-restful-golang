@@ -1,10 +1,14 @@
 package controllers
 
 import (
-	"fmt"
+	"crypto/sha512"
+	"database/sql"
+	"encoding/hex"
 	"midtrans-go/config"
 	"midtrans-go/helper"
+	"midtrans-go/model/domain"
 	"midtrans-go/model/web"
+	"midtrans-go/repositories"
 	"midtrans-go/service"
 	"net/http"
 
@@ -14,14 +18,20 @@ import (
 )
 
 type MidtransControllerImpl struct {
-	Coreapi         coreapi.Client
-	MidtransService service.MidtransService
+	Coreapi                 coreapi.Client
+	MidtransService         service.MidtransService
+	OrdersRepository        repositories.OrdersRepository
+	NotificationsRepository repositories.NotificationsRepository
+	DB                      *sql.DB
 }
 
-func NewMidtransController(coreapi coreapi.Client, midtransService service.MidtransService) *MidtransControllerImpl {
+func NewMidtransController(coreapi coreapi.Client, midtransService service.MidtransService, ordersRepository repositories.OrdersRepository, notificationsRepository repositories.NotificationsRepository, db *sql.DB) *MidtransControllerImpl {
 	return &MidtransControllerImpl{
-		Coreapi:         coreapi,
-		MidtransService: midtransService,
+		Coreapi:                 coreapi,
+		MidtransService:         midtransService,
+		OrdersRepository:        ordersRepository,
+		NotificationsRepository: notificationsRepository,
+		DB:                      db,
 	}
 }
 
@@ -30,13 +40,30 @@ func (c *MidtransControllerImpl) ChargeTransaction(w http.ResponseWriter, r *htt
 	s := coreapi.Client{}
 	s.New(config.NewConfig().Midtrans.ServerKey, midtrans.Sandbox)
 
+	tx, err := c.DB.Begin()
+	helper.PanicIfError(
+		"Cannot start db begin",
+		err,
+	)
+	defer helper.CommitOrRollback(tx)
+
 	chargeTransactionRequest := &coreapi.ChargeReq{}
 
 	helper.ReadFromRequestBody(r, chargeTransactionRequest)
 
 	coreApiRes, _ := s.ChargeTransaction(chargeTransactionRequest)
 
-	helper.WriteToResponse(w, coreApiRes)
+	orders := domain.Orders{
+		Status:           coreApiRes.TransactionStatus,
+		MidtransResponse: *coreApiRes,
+	}
+
+	createOrders := c.OrdersRepository.Create(r.Context(), tx, orders)
+
+	s.Options.SetPaymentAppendNotification(config.NewConfig().Webhook.Url)
+	midtrans.DefaultLoggerLevel = &midtrans.LoggerImplementation{LogLevel: midtrans.LogDebug}
+
+	helper.WriteToResponse(w, createOrders)
 }
 
 func (c *MidtransControllerImpl) CancelTransaction(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
@@ -78,8 +105,6 @@ func (c *MidtransControllerImpl) GetTransactionStatus(w http.ResponseWriter, r *
 		OrderId: r.URL.Query().Get("order_id"),
 	}
 
-	fmt.Println(getStatusTransactionRequest.OrderId)
-
 	s := coreapi.Client{}
 	s.New(config.NewConfig().Midtrans.ServerKey, midtrans.Sandbox)
 
@@ -98,7 +123,7 @@ func (c *MidtransControllerImpl) VerifyPayment(w http.ResponseWriter, r *http.Re
 
 	// 4. Check transaction to Midtrans with param orderId
 	transactionStatusResp, e := s.CheckTransaction(captureTransactionRequest.OrderId)
-	fmt.Println(transactionStatusResp)
+
 	if e != nil {
 		http.Error(w, e.GetMessage(), http.StatusInternalServerError)
 		return
@@ -126,4 +151,39 @@ func (c *MidtransControllerImpl) VerifyPayment(w http.ResponseWriter, r *http.Re
 	}
 
 	helper.WriteToResponse(w, transactionStatusResp)
+}
+
+func (c *MidtransControllerImpl) Notification(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
+	notificationRequestDto := &web.NotificationCallbackRequestDto{}
+
+	helper.ReadFromRequestBody(r, notificationRequestDto)
+
+	tx, err := c.DB.Begin()
+	helper.PanicIfError(
+		"Cannot start db begin",
+		err,
+	)
+	defer helper.CommitOrRollback(tx)
+
+	var SignatureKey = []byte(notificationRequestDto.OrderID + notificationRequestDto.StatusCode + notificationRequestDto.GrossAmount + config.NewConfig().ServerKey)
+
+	var sha512Hasher = sha512.New()
+
+	sha512Hasher.Write(SignatureKey)
+
+	var hashedPasswordBytes = sha512Hasher.Sum(nil)
+
+	var hashedPasswordHex = hex.EncodeToString(hashedPasswordBytes)
+
+	if notificationRequestDto.SignatureKey != hashedPasswordHex {
+		helper.WriteToResponse(w, "Invalid signature key")
+	}
+
+	orders := domain.Notifications{
+		Status:           notificationRequestDto.StatusMessage,
+		MidtransResponse: *notificationRequestDto,
+	}
+	c.NotificationsRepository.Create(r.Context(), tx, orders)
+
+	helper.WriteToResponse(w, notificationRequestDto)
 }

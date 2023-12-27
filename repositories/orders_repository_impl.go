@@ -3,6 +3,7 @@ package repositories
 import (
 	"context"
 	"database/sql"
+	"encoding/json"
 	"errors"
 	"midtrans-go/helper"
 	"midtrans-go/model/domain"
@@ -18,8 +19,11 @@ func NewOrdersRepository() *OrdersRepositoryImpl {
 }
 
 func (repository *OrdersRepositoryImpl) Create(ctx context.Context, tx *sql.Tx, orders domain.Orders) domain.Orders {
+	ordersResponse, err := json.Marshal(orders.MidtransResponse)
+	helper.PanicIfError("Error marshaling data orders", err)
+
 	SQL := "insert into orders(status,midtrans_response) values (?,?)"
-	result, err := tx.ExecContext(ctx, SQL, orders.Status, orders.MidtransResponse)
+	result, err := tx.ExecContext(ctx, SQL, orders.Status, string(ordersResponse))
 	helper.PanicIfError("Error to create data", err)
 
 	id, err := result.LastInsertId()

@@ -18,6 +18,7 @@ func NewRouter(authController controllers.AuthController, midtransController con
 	router.POST("/api/midtrans/refund-transaction", (midtransController.RefundTransaction))
 	router.POST("/api/midtrans/capture-transaction", (midtransController.VerifyPayment))
 	router.GET("/api/midtrans/get-transaction-status", (midtransController.GetTransactionStatus))
+	router.POST("/api/midtrans/callback-notif", (midtransController.Notification))
 
 	router.GET("/api/jwt/generate", authController.CreateJWT)
 

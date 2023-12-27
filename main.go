@@ -23,9 +23,6 @@ func main() {
 	authService := service.NewAuthService(userRepository, db, validate)
 	authController := controllers.NewAuthController(authService)
 
-	midtransService := service.NewMidtransService()
-	midtransController := controllers.NewMidtransController(coreapi.Client{}, midtransService)
-
 	ordersRepository := repositories.NewOrdersRepository()
 	ordersService := service.NewOrdersService(ordersRepository, db, validate)
 	ordersController := controllers.NewOrdersController(ordersService)
@@ -33,6 +30,9 @@ func main() {
 	notificationsRepository := repositories.NewNotificationsRepository()
 	notificationsService := service.NewNotificationsService(notificationsRepository, db, validate)
 	notificationsController := controllers.NewNotificationsController(notificationsService)
+
+	midtransService := service.NewMidtransService()
+	midtransController := controllers.NewMidtransController(coreapi.Client{}, midtransService, ordersRepository, notificationsRepository, db)
 
 	userService := service.NewUserService(userRepository, db, validate)
 	userController := controllers.NewUserController(userService)

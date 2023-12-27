@@ -3,6 +3,7 @@ package repositories
 import (
 	"context"
 	"database/sql"
+	"encoding/json"
 	"errors"
 	"midtrans-go/helper"
 	"midtrans-go/model/domain"
@@ -18,8 +19,11 @@ func NewNotificationsRepository() *NotificationsRepositoryImpl {
 }
 
 func (repository *NotificationsRepositoryImpl) Create(ctx context.Context, tx *sql.Tx, notifications domain.Notifications) domain.Notifications {
+	notifResponse, err := json.Marshal(notifications.MidtransResponse)
+	helper.PanicIfError("Error marshaling data notif", err)
+
 	SQL := "insert into notifications(status,midtrans_response) values (?,?)"
-	result, err := tx.ExecContext(ctx, SQL, notifications.Status, notifications.MidtransResponse)
+	result, err := tx.ExecContext(ctx, SQL, notifications.MidtransResponse.TransactionStatus, string(notifResponse))
 	helper.PanicIfError("Error to create data", err)
 
 	id, err := result.LastInsertId()

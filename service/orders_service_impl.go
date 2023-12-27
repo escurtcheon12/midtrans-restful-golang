@@ -10,6 +10,7 @@ import (
 	"midtrans-go/repositories"
 
 	"github.com/go-playground/validator/v10"
+	"github.com/midtrans/midtrans-go/coreapi"
 )
 
 type OrdersServiceImpl struct {
@@ -42,7 +43,7 @@ func (service *OrdersServiceImpl) Create(ctx context.Context, request web.Orders
 
 	user := domain.Orders{
 		Status:           request.Status,
-		MidtransResponse: request.MidtransResponse,
+		MidtransResponse: coreapi.ChargeResponse{},
 	}
 
 	userRepository := service.OrdersRepository.Create(ctx, tx, user)

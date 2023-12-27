@@ -12,4 +12,5 @@ type MidtransController interface {
 	RefundTransaction(w http.ResponseWriter, r *http.Request, p httprouter.Params)
 	GetTransactionStatus(w http.ResponseWriter, r *http.Request, p httprouter.Params)
 	VerifyPayment(w http.ResponseWriter, r *http.Request, p httprouter.Params)
+	Notification(w http.ResponseWriter, r *http.Request, p httprouter.Params)
 }

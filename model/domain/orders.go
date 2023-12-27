@@ -1,11 +1,15 @@
 package domain
 
-import "time"
+import (
+	"time"
+
+	"github.com/midtrans/midtrans-go/coreapi"
+)
 
 type Orders struct {
 	Id               int
 	Status           string
-	MidtransResponse string
+	MidtransResponse coreapi.ChargeResponse
 	CreatedAt        time.Time
 	UpdatedAt        time.Time
 }

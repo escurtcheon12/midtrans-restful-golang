@@ -27,10 +27,15 @@ type Midtrans struct {
 	ServerKey  string
 }
 
+type Webhook struct {
+	Url string
+}
+
 type Config struct {
 	App
 	Database
 	Midtrans
+	Webhook
 }
 
 func NewConfig() *Config {
@@ -67,5 +72,8 @@ func NewConfig() *Config {
 			Name:     os.Getenv("DB_NAME"),
 		},
 		midtransConfig,
+		Webhook{
+			Url: os.Getenv("WEBHOOK_URL"),
+		},
 	}
 }

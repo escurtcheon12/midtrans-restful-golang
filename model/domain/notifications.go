@@ -1,11 +1,14 @@
 package domain
 
-import "time"
+import (
+	"midtrans-go/model/web"
+	"time"
+)
 
 type Notifications struct {
 	Id               int
 	Status           string
-	MidtransResponse string
+	MidtransResponse web.NotificationCallbackRequestDto
 	CreatedAt        time.Time
 	UpdatedAt        time.Time
 }

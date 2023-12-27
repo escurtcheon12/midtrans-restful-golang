@@ -42,7 +42,7 @@ func (service *NotificationsServiceImpl) Create(ctx context.Context, request web
 
 	notification := domain.Notifications{
 		Status:           request.Status,
-		MidtransResponse: request.MidtransResponse,
+		MidtransResponse: web.NotificationCallbackRequestDto{},
 	}
 
 	userRepository := service.NotificationsRepository.Create(ctx, tx, notification)
